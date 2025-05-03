@@ -2,19 +2,21 @@ import React, { useState, useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import '../Styles/Tariffs.css'
 
-function Tariffs() {
-	const [tariffs, setTariffs] = useState([])
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState(null)
-	const location = useLocation()
-	let clientType = location.state?.clientType
+	function Tariffs() {
+		const [tariffs, setTariffs] = useState([])
+		const [loading, setLoading] = useState(true)
+		const [error, setError] = useState(null)
+		const location = useLocation()
+		let clientType = location.state?.clientType
 
-	// Маппинг clientType для соответствия backend
-	if (clientType === 'juridical' || clientType === 'legal') {
-		clientType = 'corporate'
-	} else if (clientType !== 'individual') {
-		clientType = null
-	}
+		console.log('Tariffs clientType:', clientType)  // Added for debugging
+
+		// Маппинг clientType для соответствия backend
+		if (clientType === 'juridical' || clientType === 'legal') {
+			clientType = 'corporate'
+		} else if (clientType !== 'individual') {
+			clientType = null
+		}
 
 	useEffect(() => {
 		const fetchTariffs = async () => {
@@ -46,7 +48,7 @@ function Tariffs() {
 	if (error) return <div className='error'>Ошибка загрузки тарифов: {error}</div>
 
 	return (
-		<div className='tariffs-page'>
+		<div className={`tariffs-page ${clientType === 'individual' ? 'individual' : 'corporate'}`}>
 			<h1>
 				{clientType === 'individual'
 					? 'Тарифы для физических лиц'

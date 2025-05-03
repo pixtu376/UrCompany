@@ -7,13 +7,14 @@
 }
 
 .tariff-card {
+  margin-left: 10px;
   background: white !important;
   padding: 20px;
   border-radius: 8px;
   border: 2px solid #B98776 !important;
   box-shadow: none !important;
-  flex: 0 0 calc(33.333% - 13.333px);
-  max-width: calc(33.333% - 13.333px);
+  flex: 0 0 calc(33.333% - 13.333px) !important;
+  max-width: calc(33.333% - 13.333px) !important;
   box-sizing: border-box;
   display: flex !important;
   flex-direction: column !important;
@@ -38,5 +39,21 @@
 }
 
 .tariffs-page {
+  width: 100%;
   margin-bottom: 40px; /* added to increase space between blocks and footer */
+}
+
+.tariffs-page.individual {
+  width: 100%;
+}
+
+/* New style for individual client tariffs to make cards wider */
+.tariffs-page.individual .tariff-card {
+  flex: 0 0 50% !important;
+  max-width: 50% !important;
+  width: 50% !important; /* override fixed width in TariffsPage.css */
+}
+
+.tariffs-page.individual .tariffs-grid {
+  justify-content: flex-start !important; /* override center alignment */
 }
