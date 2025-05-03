@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions
-from .models import User, Tariff, Order
-from .serializers import UserSerializer, TariffSerializer, OrderSerializer
+from .models import User, Tariff, Order, Worker
+from .serializers import UserSerializer, TariffSerializer, OrderSerializer, WorkerSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -29,3 +29,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class WorkerViewSet(viewsets.ModelViewSet):
+    queryset = Worker.objects.all()
+    serializer_class = WorkerSerializer
+    permission_classes = [permissions.AllowAny]

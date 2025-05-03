@@ -16,6 +16,7 @@ class CoreModelsTestCase(TestCase):
         self.order2 = Order.objects.create(user=self.user2, tariff=self.tariff2, custom_name='Кастомный заказ 2', status='in_progress', deadline=timezone.now().date() + timedelta(days=20))
         self.worker1 = Worker.objects.create(full_name='Работник Один', login='worker1', password='pass1', access_level=1, passport_number='1234567890')
         self.worker2 = Worker.objects.create(full_name='Работник Два', login='worker2', password='pass2', access_level=2, passport_number='0987654321')
+        self.client.force_authenticate(user=self.user)
 
     def test_user_creation(self):
         self.assertEqual(User.objects.count(), 2)
@@ -40,6 +41,8 @@ class CoreAPITestCase(TestCase):
         self.tariff = Tariff.objects.create(name='Тестовый тариф', short_description='Кратко', detailed_description='Подробно', price=1500)
         self.order = Order.objects.create(user=self.user, tariff=self.tariff, custom_name='Тестовый заказ', status='pending', deadline=timezone.now().date() + timedelta(days=5))
         self.worker = Worker.objects.create(full_name='Тест Работник', login='testworker', password='testpass', access_level=1, passport_number='111222333')
+        self.client.login(email='testuser@example.com', password='testpass')
+
 
     def test_get_users(self):
         response = self.client.get(reverse('user-list'))

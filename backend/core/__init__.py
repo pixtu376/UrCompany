@@ -1,0 +1,1 @@
+default_app_config = 'core.apps.CoreConfig'  # для Django < 3.2

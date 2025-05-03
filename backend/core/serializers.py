@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Tariff, Order
+from .models import User, Tariff, Order, Worker
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,4 +17,9 @@ class OrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Order
+        fields = '__all__'
+
+class WorkerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Worker
         fields = '__all__'
