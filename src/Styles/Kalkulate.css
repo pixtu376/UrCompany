@@ -1,0 +1,223 @@
+.main-content {
+    display: flex;
+    padding: 20px;
+}
+
+.left-section {
+    flex: 2;
+    padding-right: 20px;
+}
+
+.right-section {
+    flex: 1;
+    background-color: #eee;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+input[type="radio"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #B98776;
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+    top: 4px;
+    cursor: pointer;
+}
+
+input[type="text"] {
+    font-size: 18px;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+input[type="radio"]:checked {
+    background-color: #B98776;
+    border-color: #B98776;
+}
+
+.category-section label, .task-type-section label {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.name-fields {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.name-fields input {
+    width: 30%;
+    height: 30px;
+    margin-right: 10px;
+    margin-bottom: 30px;
+    padding: 8px;
+    border: 1px solid #B98776;
+    border-radius: 30px;
+}
+
+.category-section, .task-type-section {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #B98776;
+    border-radius: 30px;
+    background-color: white;
+}
+
+.category-section h4, .task-type-section h4, .payment-type-section h4, .urgency-section h4, .name-fields h4, .description-section h4 {
+    font-size: 24px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.task-details {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.payment-type-section, .urgency-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.payment-type-section button, 
+.urgency-section button {
+    padding: 8px 15px;
+    margin: 5px;
+    border: none;
+    background-color: #ddd;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.payment-type-section button:active,
+.urgency-section button.active {
+    background-color: #B98776;
+    color: white;
+}
+
+.task-details button {
+    padding: 8px 15px;
+    margin: 5px;
+    border: none;
+    background-color: #ddd;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.task-details button:active, 
+.task-details button.active {
+    background-color: #B98776;
+    color: white;
+}
+
+.task-details button {
+    width: 30%;
+    height: 60px;
+}
+
+.description-section {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #B98776;
+    border-radius: 30px;
+    background-color: white;
+    padding-bottom: 30px;
+}
+
+.description-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.right-section .account-info {
+    padding: 15px;
+    border: 1px solid #B98776;
+    border-radius: 30px;
+    background-color: white;
+}
+
+.right-section .account-info h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.right-section .account-info p {
+    margin: 5px 0;
+}
+
+.right-section .account-info button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.right-section .account-info button:active {
+    background-color: #B98776;
+}
+
+/* Added styles for form inputs */
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="email"] {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #B98776;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus,
+.form-group input[type="email"]:focus {
+    border-color: #8B5E3C;
+}
+
+.input-error {
+    border-color: #e74c3c !important;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 3px;
+}
+
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 8px;
+}

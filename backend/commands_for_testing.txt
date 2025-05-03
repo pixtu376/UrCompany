@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+# Скрипт для добавления тестовых тарифов в базу данных Django
+# Запускать через Django shell: python manage.py shell < commands_for_testing.txt
+
+from core.models import Tariff
+
+# Удаляем все существующие тарифы (опционально)
+Tariff.objects.all().delete()
+
+# Добавляем тарифы для физических лиц
+Tariff.objects.create(
+    name='Физический тариф 1',
+    photo='FirstBack.png',
+    short_description='Краткое описание физического тарифа 1',
+    detailed_description='Подробное описание физического тарифа 1',
+    price=1000.00,
+    client_type='individual'
+)
+
+Tariff.objects.create(
+    name='Физический тариф 2',
+    photo='SecondUrUser.png',
+    short_description='Краткое описание физического тарифа 2',
+    detailed_description='Подробное описание физического тарифа 2',
+    price=1500.00,
+    client_type='individual'
+)
+
+# Добавляем тарифы для юридических лиц
+Tariff.objects.create(
+    name='Юридический тариф 1',
+    photo='FirstBack.png',
+    short_description='Краткое описание юридического тарифа 1',
+    detailed_description='Подробное описание юридического тарифа 1',
+    price=5000.00,
+    client_type='legal'
+)
+
+Tariff.objects.create(
+    name='Юридический тариф 2',
+    photo='SecondUrUser.png',
+    short_description='Краткое описание юридического тарифа 2',
+    detailed_description='Подробное описание юридического тарифа 2',
+    price=7000.00,
+    client_type='legal'
+)
