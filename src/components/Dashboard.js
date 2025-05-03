@@ -1,54 +1,151 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Navigate } from 'react-router-dom'
-import '../Styles/Dashboard.css'
+import '../Styles/PersonalAccount.css'
 
-function Dashboard() {
+const Dashboard = () => {
+	// Получаем пользователя и список заявлений из контекста аутентификации
 	const { user, orders } = useAuth()
 
+	// Если пользователь не авторизован, перенаправляем на страницу входа
 	if (!user) {
-		return <Navigate to='/login' />
+		return <Navigate to='/LoginPage' replace />
+	}
+
+	// Функция для отображения значения с проверкой на пустоту или "Не заполнено"
+	const renderValue = (value) => {
+		if (!value || value === 'Не заполнено') {
+			return <span className='not-specified'>не указан</span>
+		}
+		return value
 	}
 
 	return (
-		<div className='dashboard'>
-			<h1>Личный кабинет</h1>
-			<div className='user-info'>
-				<h2>Ваши данные</h2>
-				<p>
-					<strong>Имя:</strong> {user.first_name || 'Не указано'}
-				</p>
-				<p>
-					<strong>Фамилия:</strong> {user.last_name || 'Не указано'}
-				</p>
-				<p>
-					<strong>Email:</strong> {user.email}
-				</p>
-			</div>
+		<div className='personal-account'>
+			<div className='account-container'>
+				{/* Боковая панель с навигацией */}
+				<aside className='account-sidebar'>
+					<nav>
+						<ul>
+							<li className='active'>Уведомления</li>
+							<li>Настройки</li>
+							<li>Мои данные</li>
+							<li className='user-name'>
+								{user?.firstName || user?.email || 'Пользователь'}
+							</li>
+						</ul>
+					</nav>
+				</aside>
 
-			<div className='orders-section'>
-				<h2>Ваши заказы</h2>
-				{orders.length === 0 ? (
-					<p>У вас пока нет заказов</p>
-				) : (
-					<div className='orders-list'>
-						{orders.map(order => (
-							<div key={order.id} className='order-card'>
-								<h3>{order.tariff.name}</h3>
-								<p>
-									<strong>Статус:</strong> {order.status}
-								</p>
-								<p>
-									<strong>Дата:</strong>{' '}
-									{new Date(order.created_at).toLocaleDateString()}
-								</p>
-								<p>
-									<strong>Сумма:</strong> {order.tariff.price} ₽
-								</p>
+				{/* Основной контент личного кабинета */}
+				<main className='account-content'>
+					<div className='top-row'>
+						{/* Основная информация пользователя */}
+						<section className='main-info-block'>
+							<h2>Основная информация</h2>
+							<div className='info-table'>
+								<div className='info-row'>
+									<span className='info-label'>ФИО</span>
+									<span className='info-value'>
+										{renderValue(
+											`${user?.lastName || ''} ${user?.firstName || ''} ${user?.middleName || ''}`.trim() || 'Не заполнено'
+										)}
+									</span>
+								</div>
+								<div className='info-row'>
+									<span className='info-label'>Дата рождения</span>
+									<span className='info-value'>01.01.2023</span>
+								</div>
+								<div className='info-row'>
+									<span className='info-label'>Пол</span>
+									<span className='info-value'>Мужской</span>
+								</div>
 							</div>
-						))}
+						</section>
+
+						{/* Информация о документах */}
+						<section className='documents-block'>
+							<h2>Мои документы</h2>
+							<div className='info-section'>
+								<h3>Тип документа</h3>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+
+							<div className='info-section'>
+								<h3>Серия и номер</h3>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+
+							<div className='info-section'>
+								<h3>Дата выдачи</h3>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+
+							<div className='info-section'>
+								<h3>Кем выдан</h3>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+
+							<div className='info-section'>
+								<h3>СНИЛС</h3>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+						</section>
 					</div>
-				)}
+
+					{/* Адрес регистрации */}
+					<section className='address-block'>
+						<h2>Адрес регистрации</h2>
+						<div className='address-grid'>
+							<div className='address-item'>
+								<span>Населённый пункт</span>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+							<div className='address-item'>
+								<span>Улица</span>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+							<div className='address-item'>
+								<span>Дом</span>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+							<div className='address-item'>
+								<span>Корпус</span>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+							<div className='address-item'>
+								<span>Квартира</span>
+								<p className='info-value'>{renderValue('Не заполнено')}</p>
+							</div>
+						</div>
+					</section>
+
+					{/* Секция с заявлениями, динамически отображаемыми из orders */}
+					<section className='applications-block'>
+						<h2>Мои заявления</h2>
+						<div className='applications-list'>
+							{orders && orders.length > 0 ? (
+								orders.map((order) => (
+									<div key={order.id} className='application-item'>
+										<div className='application-info'>
+											<p className='service-name'>{order.tariff?.name || 'Не указано'}</p>
+											<p className='registration-date'>
+												{order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Не указано'}
+											</p>
+											<p className='total-check'>{order.tariff?.price ? `${order.tariff.price} ₽` : 'Не указано'}</p>
+										</div>
+										<div className='application-actions'>
+											<button className='status-btn'>Статус</button>
+											<button className='cancel-btn'>Отменить заявку</button>
+										</div>
+									</div>
+								))
+							) : (
+								<p>Заявлений пока нет</p>
+							)}
+						</div>
+					</section>
+				</main>
 			</div>
 		</div>
 	)

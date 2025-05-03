@@ -58,10 +58,12 @@ function Tariffs() {
 					<div key={tariff.id} className='tariff-card'>
 						<h2>{tariff.name}</h2>
 						<p className='description'>{tariff.short_description}</p>
-						<p className='price'>{tariff.price} ₽</p>
-						<Link to={`/tariff/${tariff.id}`} className='details-button'>
-							Подробнее
-						</Link>
+						<div className='tariff-footer'>
+							<p className='price'>{tariff.price} ₽</p>
+							<Link to={`/tariff/${tariff.id}`} className='details-button'>
+								Подробнее
+							</Link>
+						</div>
 					</div>
 				))}
 			</div>
