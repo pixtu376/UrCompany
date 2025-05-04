@@ -3,10 +3,12 @@ from .models import User, Tariff, Order, Worker
 from .serializers import UserSerializer, TariffSerializer, OrderSerializer, WorkerSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework import permissions
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
 class TariffViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TariffSerializer

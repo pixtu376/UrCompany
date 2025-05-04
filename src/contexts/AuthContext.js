@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	const fetchUser = async token => {
+	const fetchUser = async (token) => {
 		try {
 			console.log('Access token in fetchUser:', token)
 			const response = await fetch('http://localhost:8000/users/', {
@@ -36,11 +36,60 @@ export function AuthProvider({ children }) {
 					Authorization: `Bearer ${token}`,
 				},
 			})
+			if (response.status === 401) {
+				console.error('Unauthorized in fetchUser, redirecting to login')
+				setUser(null)
+				setAccessToken(null)
+				navigate('/LoginPage')
+				return
+			}
 			const data = await response.json()
-			setUser(data[0] || null) // предполагается, что возвращается список пользователей, берем первого
-			await fetchOrders(data[0]?.id, token)
+			// Теперь предполагается, что API возвращает список пользователей, берем первого
+			if (Array.isArray(data) && data.length > 0) {
+				setUser(data[0])
+				await fetchOrders(data[0].id, token)
+			} else {
+				setUser(null)
+				setOrders([])
+			}
 		} catch (error) {
 			console.error('Error fetching user:', error)
+		}
+	}
+
+	const updateUser = async (updatedData, token) => {
+		if (!token || !user) {
+			console.error('No access token or user to update')
+			return
+		}
+		try {
+			console.log('Updating user with data:', updatedData)
+			const response = await fetch(`http://localhost:8000/users/${user.id}/`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify(updatedData),
+			})
+			console.log('Update user response status:', response.status)
+			if (response.status === 401) {
+				console.error('Unauthorized in updateUser, redirecting to login')
+				setUser(null)
+				setAccessToken(null)
+				navigate('/LoginPage')
+				return
+			}
+			if (!response.ok) {
+				const errorText = await response.text()
+				console.error('Error response text:', errorText)
+				throw new Error('Ошибка обновления пользователя')
+			}
+			const data = await response.json()
+			console.log('Updated user data:', data)
+			setUser(data)
+		} catch (error) {
+			console.error('Error updating user:', error)
 		}
 	}
 
@@ -91,7 +140,7 @@ export function AuthProvider({ children }) {
 	}
 
 	return (
-		<AuthContext.Provider value={{ user, orders, login, createOrder }}>
+		<AuthContext.Provider value={{ user, orders, login, createOrder, updateUser, fetchUser, accessToken }}>
 			{children}
 		</AuthContext.Provider>
 	)
