@@ -13,7 +13,7 @@ function TariffDetail() {
 	useEffect(() => {
 		const fetchTariff = async () => {
 			try {
-				const response = await fetch(`/api/tariffs/${id}/`)
+				const response = await fetch(`/tariffs/${id}/`)
 				const data = await response.json()
 				setTariff(data)
 			} catch (error) {
@@ -37,32 +37,41 @@ function TariffDetail() {
 		}
 	}
 
+	const handleBack = () => {
+		navigate('/tariffs')
+	}
+
 	if (loading) return <div className='loading'>Загрузка...</div>
 	if (!tariff) return <div className='error'>Тариф не найден</div>
 
 	return (
 		<div className='tariff-detail'>
-			<h1>{tariff.name}</h1>
-			<div className='tariff-content'>
-				<div className='tariff-info'>
-					<h2>Описание</h2>
-					<p>{tariff.detailed_description}</p>
-
-					<h2>Характеристики</h2>
-					<ul>
-						<li>
-							<strong>Тип клиента:</strong>{' '}
-							{tariff.client_type === 'individual'
-								? 'Физическое лицо'
-								: 'Юридическое лицо'}
-						</li>
-						<li>
-							<strong>Цена:</strong> {tariff.price} ₽
-						</li>
-					</ul>
-
-					<button onClick={handleOrder} className='order-button'>
-						Оформить заказ
+			<div className='tariff-main-block'>
+				<h1 className='tariff-title'>{tariff.name}</h1>
+				<p className='tariff-description'>{tariff.detailed_description}</p>
+			</div>
+			<div className='tariff-secondary-block'>
+				<h2 className='section-title'>Информация о тарифе</h2>
+				<div className='tariff-data-block'>
+					<div>
+						<strong>Категория:</strong> {tariff.category || 'Не указана'}
+					</div>
+					<div>
+						<strong>Тип задачи:</strong> {tariff.task_type || 'Не указан'}
+					</div>
+					<div>
+						<strong>Форма оплаты:</strong> {tariff.payment_form || 'Не указана'}
+					</div>
+					<div>
+						<strong>Стоимость:</strong> {tariff.price} ₽
+					</div>
+				</div>
+				<div className='tariff-buttons-block'>
+					<button className='back-button' onClick={handleBack}>
+						&lt; Обратно к тарифам
+					</button>
+					<button className='order-button' onClick={handleOrder}>
+						Оформить заказ &gt;
 					</button>
 				</div>
 			</div>

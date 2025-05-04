@@ -1,11 +1,13 @@
-// src/components/Header.jsx
 import React from 'react'
 import logo from '../Image/logo.png'
-import user from '../Image/User.png'
+import userIcon from '../Image/User.png'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import '../Styles/header.css'
 
 function Header() {
+	const { user } = useAuth()
+
 	return (
 		<div className='header'>
 			<div className='logo'>
@@ -24,8 +26,8 @@ function Header() {
 				</button>
 			</div>
 			<button className='User'>
-				<Link to='/dashboard'>
-					<img className='Userlogo' src={user} alt=''></img>
+				<Link to={user ? '/dashboard' : '/login'}>
+					<img className='Userlogo' src={userIcon} alt=''></img>
 					<p>Личный кабинет</p>
 				</Link>
 			</button>

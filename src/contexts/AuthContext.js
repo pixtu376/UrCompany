@@ -67,16 +67,22 @@ export function AuthProvider({ children }) {
 
 	const createOrder = async tariffId => {
 		try {
+			const body = { tariff_id: tariffId }
 			console.log('Access token in createOrder:', accessToken)
+			console.log('Request body in createOrder:', body)
 			const response = await fetch('http://localhost:8000/orders/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${accessToken}`,
 				},
-				body: JSON.stringify({ tariff: tariffId }),
+				body: JSON.stringify(body),
 			})
 			const newOrder = await response.json()
+			console.log('Response from createOrder:', newOrder)
+			if (!response.ok) {
+				throw new Error(JSON.stringify(newOrder))
+			}
 			setOrders([...orders, newOrder])
 			return newOrder
 		} catch (error) {
