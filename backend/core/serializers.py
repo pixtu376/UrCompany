@@ -4,7 +4,7 @@ from .models import User, Tariff, Order, Worker
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'birthDate', 'gender', 'document_type', 'document_number', 'document_issue_date', 'document_issuer', 'snils', 'address_city', 'address_street', 'address_house', 'address_building', 'address_apartment']
+        fields = ['id', 'email', 'first_name', 'last_name', 'birthDate', 'gender', 'document_type', 'document_number', 'document_issue_date', 'document_issuer', 'snils', 'address_city', 'address_street', 'address_house', 'address_building', 'address_apartment', 'is_staff']
         extra_kwargs = {'password': {'write_only': True}}
 
 class TariffSerializer(serializers.ModelSerializer):

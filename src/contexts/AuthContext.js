@@ -21,8 +21,13 @@ export function AuthProvider({ children }) {
 			}
 			const data = await response.json()
 			setAccessToken(data.access)
-			await fetchUser(data.access)
-			navigate('/dashboard')
+			const userData = await fetchUser(data.access)
+			// Навигация в зависимости от роли пользователя
+			if (userData && userData.is_staff) {
+				navigate('/admin-tariffs')
+			} else {
+				navigate('/dashboard')
+			}
 		} catch (error) {
 			console.error('Login error:', error)
 		}
@@ -31,7 +36,7 @@ export function AuthProvider({ children }) {
 	const fetchUser = async (token) => {
 		try {
 			console.log('Access token in fetchUser:', token)
-			const response = await fetch('http://localhost:8000/users/', {
+			const response = await fetch('http://localhost:8000/users/me/', {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -41,19 +46,21 @@ export function AuthProvider({ children }) {
 				setUser(null)
 				setAccessToken(null)
 				navigate('/login')
-				return
+				return null
 			}
 			const data = await response.json()
-			// Теперь предполагается, что API возвращает список пользователей, берем первого
-			if (Array.isArray(data) && data.length > 0) {
-				setUser(data[0])
-				await fetchOrders(data[0].id, token)
+			if (data) {
+				setUser(data)
+				await fetchOrders(data.id, token)
+				return data
 			} else {
 				setUser(null)
 				setOrders([])
+				return null
 			}
 		} catch (error) {
 			console.error('Error fetching user:', error)
+			return null
 		}
 	}
 

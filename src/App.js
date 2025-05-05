@@ -11,6 +11,7 @@ import PhysicalClientsPage from './components/PhysicalClientsPage'
 import RegistrationPage from './components/RegistrationPage'
 import Tariffs from './components/Tariffs'
 import TariffDetail from './components/TariffDetail'
+import AdminTariffsPage from './components/AdminTariffsPage'
 
 function App() {
 	return (
@@ -25,6 +26,7 @@ function App() {
 				<Route path='registration' element={<RegistrationPage />} />
 				<Route path='tariffs' element={<Tariffs />} />
 				<Route path='tariff/:id' element={<TariffDetail />} />
+				<Route path='admin-tariffs' element={<AdminTariffsPage />} />
 			</Route>
 		</Routes>
 	)

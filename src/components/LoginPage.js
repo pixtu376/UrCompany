@@ -35,7 +35,7 @@ function LoginPage() {
 	const onSubmit = data => {
 		console.log({ ...data, userType: activeTab })
 		login({ ...data, userType: activeTab })
-		navigate('/dashboard')
+		// navigate('/dashboard') убираем, навигация происходит в AuthContext после успешного логина
 	}
 
 	return (
