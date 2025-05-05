@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
 				console.error('Unauthorized in fetchUser, redirecting to login')
 				setUser(null)
 				setAccessToken(null)
-				navigate('/LoginPage')
+				navigate('/login')
 				return
 			}
 			const data = await response.json()
@@ -77,7 +77,7 @@ export function AuthProvider({ children }) {
 				console.error('Unauthorized in updateUser, redirecting to login')
 				setUser(null)
 				setAccessToken(null)
-				navigate('/LoginPage')
+				navigate('/login')
 				return
 			}
 			if (!response.ok) {

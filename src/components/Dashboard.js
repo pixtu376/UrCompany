@@ -16,7 +16,7 @@ const Dashboard = () => {
   }, [accessToken, fetchUser, loading])
 
   if (!user && !loading) {
-    return <Navigate to='/LoginPage' replace />
+    return <Navigate to='/login' replace />
   }
 
   const renderValue = (value) => {
