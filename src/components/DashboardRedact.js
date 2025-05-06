@@ -7,6 +7,8 @@ import '../Styles/Login.css'
 const DashboardRedact = ({ onCancel }) => {
   const { user, updateUser, fetchUser, accessToken } = useAuth()
 
+  const [activeTab, setActiveTab] = useState('Настройки')
+
   const [originalData, setOriginalData] = useState(null)
 
   const [formData, setFormData] = useState({
@@ -93,214 +95,245 @@ const DashboardRedact = ({ onCancel }) => {
     }
   }
 
+  const handleTabClick = (tab) => {
+    if (tab === 'Настройки') {
+      setActiveTab('Настройки')
+    } else {
+      onCancel(tab)
+    }
+  }
+
   return (
     <div className='personal-account'>
       <div className='account-container'>
         <aside className='account-sidebar'>
           <nav>
             <ul>
-              <li onClick={onCancel} style={{ cursor: 'pointer' }}>Личный кабинет</li>
-              <li className='active'>Настройки</li>
+              <li
+                className={activeTab === 'Мои данные' ? 'active' : ''}
+                onClick={() => handleTabClick('Мои данные')}
+                style={{ cursor: 'pointer' }}
+              >
+                Мои данные
+              </li>
+              <li
+                className={activeTab === 'Настройки' ? 'active' : ''}
+                onClick={() => handleTabClick('Настройки')}
+                style={{ cursor: 'pointer' }}
+              >
+                Настройки
+              </li>
+              <li
+                className={activeTab === 'Уведомления' ? 'active' : ''}
+                onClick={() => handleTabClick('Уведомления')}
+                style={{ cursor: 'pointer' }}
+              >
+                Уведомления
+              </li>
             </ul>
           </nav>
         </aside>
         <main className='account-content'>
-          <div className='top-row'>
-            <section className='main-info-block'>
-              <h2>Основная информация</h2>
-              <div className='info-table'>
-                <div className='info-row'>
-                  <label className='info-label' htmlFor='last_name'>Фамилия</label>
-                  <input
-                    className='input-field'
-                    type='text'
-                    id='last_name'
-                    name='last_name'
-                    value={formData.last_name}
-                    onChange={handleChange}
-                  />
+          {activeTab === 'Настройки' && (
+            <>
+              <div className='top-row'>
+                <section className='main-info-block'>
+                  <h2>Основная информация</h2>
+                  <div className='info-table'>
+                    <div className='info-row'>
+                      <label className='info-label' htmlFor='last_name'>Фамилия</label>
+                      <input
+                        className='input-field'
+                        type='text'
+                        id='last_name'
+                        name='last_name'
+                        value={formData.last_name}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className='info-row'>
+                      <label className='info-label' htmlFor='first_name'>Имя</label>
+                      <input
+                        className='input-field'
+                        type='text'
+                        id='first_name'
+                        name='first_name'
+                        value={formData.first_name}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className='info-row'>
+                      <label className='info-label' htmlFor='middle_name'>Отчество</label>
+                      <input
+                        className='input-field'
+                        type='text'
+                        id='middle_name'
+                        name='middle_name'
+                        value={formData.middle_name}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className='info-row'>
+                      <label className='info-label' htmlFor='birthDate'>Дата рождения</label>
+                      <input
+                        className='input-field'
+                        type='date'
+                        id='birthDate'
+                        name='birthDate'
+                        value={formData.birthDate || ''}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className='info-row'>
+                      <label className='info-label' htmlFor='gender'>Пол</label>
+                      <select
+                        className='input-field'
+                        id='gender'
+                        name='gender'
+                        value={formData.gender}
+                        onChange={handleChange}
+                      >
+                        <option value=''>Выберите пол</option>
+                        <option value='Мужской'>Мужской</option>
+                        <option value='Женский'>Женский</option>
+                      </select>
+                    </div>
+                  </div>
+                </section>
+
+                <section className='documents-block'>
+                  <h2>Мои документы</h2>
+                  <div className='info-section'>
+                    <label htmlFor='document_type'>Тип документа</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='document_type'
+                      name='document_type'
+                      value={formData.document_type}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className='info-section'>
+                    <label htmlFor='document_number'>Серия и номер</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='document_number'
+                      name='document_number'
+                      value={formData.document_number}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className='info-section'>
+                    <label htmlFor='document_issue_date'>Дата выдачи</label>
+                    <input
+                      className='input-field'
+                      type='date'
+                      id='document_issue_date'
+                      name='document_issue_date'
+                      value={formData.document_issue_date || ''}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className='info-section'>
+                    <label htmlFor='document_issuer'>Кем выдан</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='document_issuer'
+                      name='document_issuer'
+                      value={formData.document_issuer}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className='info-section'>
+                    <label htmlFor='snils'>СНИЛС</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='snils'
+                      name='snils'
+                      value={formData.snils}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </section>
+              </div>
+
+              <section className='address-block'>
+                <h2>Адрес регистрации</h2>
+                <div className='address-grid'>
+                  <div className='address-item'>
+                    <label htmlFor='address_city'>Населённый пункт</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='address_city'
+                      name='address_city'
+                      value={formData.address_city}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className='address-item'>
+                    <label htmlFor='address_street'>Улица</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='address_street'
+                      name='address_street'
+                      value={formData.address_street}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className='address-item'>
+                    <label htmlFor='address_house'>Дом</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='address_house'
+                      name='address_house'
+                      value={formData.address_house}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className='address-item'>
+                    <label htmlFor='address_building'>Корпус</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='address_building'
+                      name='address_building'
+                      value={formData.address_building}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className='address-item'>
+                    <label htmlFor='address_apartment'>Квартира</label>
+                    <input
+                      className='input-field'
+                      type='text'
+                      id='address_apartment'
+                      name='address_apartment'
+                      value={formData.address_apartment}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
-                <div className='info-row'>
-                  <label className='info-label' htmlFor='first_name'>Имя</label>
-                  <input
-                    className='input-field'
-                    type='text'
-                    id='first_name'
-                    name='first_name'
-                    value={formData.first_name}
-                    onChange={handleChange}
-                  />
+              </section>
+
+              <button onClick={handleSave} className='save-button'>Сохранить</button>
+
+              {showNotification && (
+                <div className='notification-popup'>
+                  Данные сохранены
                 </div>
-                <div className='info-row'>
-                  <label className='info-label' htmlFor='middle_name'>Отчество</label>
-                  <input
-                    className='input-field'
-                    type='text'
-                    id='middle_name'
-                    name='middle_name'
-                    value={formData.middle_name}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className='info-row'>
-                  <label className='info-label' htmlFor='birthDate'>Дата рождения</label>
-                  <input
-                    className='input-field'
-                    type='date'
-                    id='birthDate'
-                    name='birthDate'
-                    value={formData.birthDate || ''}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className='info-row'>
-                  <label className='info-label' htmlFor='gender'>Пол</label>
-                  <select
-                    className='input-field'
-                    id='gender'
-                    name='gender'
-                    value={formData.gender}
-                    onChange={handleChange}
-                  >
-                    <option value=''>Выберите пол</option>
-                    <option value='Мужской'>Мужской</option>
-                    <option value='Женский'>Женский</option>
-                  </select>
-                </div>
-              </div>
-            </section>
-
-            <section className='documents-block'>
-              <h2>Мои документы</h2>
-              <div className='info-section'>
-                <label htmlFor='document_type'>Тип документа</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='document_type'
-                  name='document_type'
-                  value={formData.document_type}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className='info-section'>
-                <label htmlFor='document_number'>Серия и номер</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='document_number'
-                  name='document_number'
-                  value={formData.document_number}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className='info-section'>
-                <label htmlFor='document_issue_date'>Дата выдачи</label>
-                <input
-                  className='input-field'
-                  type='date'
-                  id='document_issue_date'
-                  name='document_issue_date'
-                  value={formData.document_issue_date || ''}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className='info-section'>
-                <label htmlFor='document_issuer'>Кем выдан</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='document_issuer'
-                  name='document_issuer'
-                  value={formData.document_issuer}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className='info-section'>
-                <label htmlFor='snils'>СНИЛС</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='snils'
-                  name='snils'
-                  value={formData.snils}
-                  onChange={handleChange}
-                />
-              </div>
-            </section>
-          </div>
-
-          <section className='address-block'>
-            <h2>Адрес регистрации</h2>
-            <div className='address-grid'>
-              <div className='address-item'>
-                <label htmlFor='address_city'>Населённый пункт</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='address_city'
-                  name='address_city'
-                  value={formData.address_city}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className='address-item'>
-                <label htmlFor='address_street'>Улица</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='address_street'
-                  name='address_street'
-                  value={formData.address_street}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className='address-item'>
-                <label htmlFor='address_house'>Дом</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='address_house'
-                  name='address_house'
-                  value={formData.address_house}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className='address-item'>
-                <label htmlFor='address_building'>Корпус</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='address_building'
-                  name='address_building'
-                  value={formData.address_building}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className='address-item'>
-                <label htmlFor='address_apartment'>Квартира</label>
-                <input
-                  className='input-field'
-                  type='text'
-                  id='address_apartment'
-                  name='address_apartment'
-                  value={formData.address_apartment}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-          </section>
-
-          <button onClick={handleSave} className='save-button'>Сохранить</button>
-
-          {showNotification && (
-            <div className='notification-popup'>
-              Данные сохранены
-            </div>
+              )}
+            </>
           )}
         </main>
       </div>
