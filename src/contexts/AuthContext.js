@@ -146,8 +146,14 @@ export function AuthProvider({ children }) {
 		}
 	}
 
+	const logout = () => {
+		setUser(null)
+		setAccessToken(null)
+		navigate('/login')
+	}
+
 	return (
-		<AuthContext.Provider value={{ user, orders, login, createOrder, updateUser, fetchUser, accessToken }}>
+		<AuthContext.Provider value={{ user, orders, login, createOrder, updateUser, fetchUser, accessToken, logout }}>
 			{children}
 		</AuthContext.Provider>
 	)
