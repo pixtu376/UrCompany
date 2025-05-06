@@ -25,6 +25,8 @@ export function AuthProvider({ children }) {
 			// Навигация в зависимости от роли пользователя
 			if (userData && userData.is_staff) {
 				navigate('/admin-tariffs')
+			} else if (userData && userData.is_worker) {
+				navigate('/worker')
 			} else {
 				navigate('/dashboard')
 			}

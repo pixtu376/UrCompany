@@ -1,11 +1,19 @@
 from rest_framework import serializers
 from .models import User, Tariff, Order, Worker
 
+from rest_framework import serializers
+from .models import User, Tariff, Order, Worker
+
 class UserSerializer(serializers.ModelSerializer):
+    is_worker = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'birthDate', 'gender', 'document_type', 'document_number', 'document_issue_date', 'document_issuer', 'snils', 'address_city', 'address_street', 'address_house', 'address_building', 'address_apartment', 'is_staff']
+        fields = ['id', 'email', 'first_name', 'last_name', 'birthDate', 'gender', 'document_type', 'document_number', 'document_issue_date', 'document_issuer', 'snils', 'address_city', 'address_street', 'address_house', 'address_building', 'address_apartment', 'is_staff', 'is_worker']
         extra_kwargs = {'password': {'write_only': True}}
+
+    def get_is_worker(self, obj):
+        return Worker.objects.filter(login=obj.email).exists()
 
 class TariffSerializer(serializers.ModelSerializer):
     class Meta:
