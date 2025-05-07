@@ -80,8 +80,12 @@ class Worker(models.Model):
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'В обработке'),
-        ('completed', 'Завершен'),
+        ('in_progress', 'Выполняется'),
+        ('under_review', 'На проверке'),
         ('cancelled', 'Отменен'),
+        ('completed', 'Завершен'),
+        ('failed', 'Неудача'),
+        ('refunded', 'Возврат'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -240,7 +240,8 @@ h2 {
   gap: 12px;
 }
 
-.status-btn {
+.status-label {
+  text-align: center;
   padding: 8px 18px;
   background-color: #72493B;
   color: white;
@@ -252,7 +253,7 @@ h2 {
   min-width: 90px;
 }
 
-.status-btn:hover {
+.status-label {
   background-color: #5d3a2f;
   transform: translateY(-1px);
 }

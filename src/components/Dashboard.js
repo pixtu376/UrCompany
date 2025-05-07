@@ -7,6 +7,17 @@ import '../Styles/PersonalAccount.css'
 const Dashboard = () => {
   const { user, orders, fetchUser, accessToken } = useAuth()
   const [activeTab, setActiveTab] = useState('Мои данные')
+  const [localOrders, setLocalOrders] = useState([])
+
+  const statusLabels = {
+    pending: 'В обработке',
+    in_progress: 'Выполняется',
+    under_review: 'На проверке',
+    cancelled: 'Отменен',
+    completed: 'Завершен',
+    failed: 'Неудача',
+    refunded: 'Возврат',
+  }
 
   const handleCancel = (tab) => {
     if (tab) {
@@ -23,9 +34,15 @@ const Dashboard = () => {
     }
   }, [accessToken, fetchUser, loading])
 
+  useEffect(() => {
+    setLocalOrders(orders)
+  }, [orders])
+
   if (!user && !loading) {
     return <Navigate to='/login' replace />
   }
+
+  // Move statusLabels outside component render to avoid redeclaration
 
   const renderValue = (value) => {
     if (!value || value === 'Не заполнено') {
@@ -173,8 +190,8 @@ const Dashboard = () => {
               <section className='applications-block'>
                 <h2>Мои заявления</h2>
                 <div className='applications-list'>
-                  {orders && orders.length > 0 ? (
-                    orders.map((order) => (
+                  {localOrders && localOrders.length > 0 ? (
+                    localOrders.map((order) => (
                       <div key={order.id} className='application-item'>
                         <div className='application-info'>
                           <p className='service-name'>{order.tariff?.name || 'Не указано'}</p>
@@ -184,7 +201,7 @@ const Dashboard = () => {
                           <p className='total-check'>{order.tariff?.price ? `${order.tariff.price} ₽` : 'Не указано'}</p>
                         </div>
                         <div className='application-actions'>
-                          <button className='status-btn'>Статус</button>
+                          <span className='status-label'>Статус: {statusLabels[order.status] || 'Не указан'}</span>
                           <button className='cancel-btn'>Отменить заявку</button>
                         </div>
                       </div>
