@@ -42,6 +42,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    @property
+    def is_worker(self):
+        from .models import Worker
+        return Worker.objects.filter(login=self.email).exists()
+
 class Tariff(models.Model):
     CLIENT_TYPE_CHOICES = [
         ('individual', 'Физическое лицо'),

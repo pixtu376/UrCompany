@@ -1,5 +1,6 @@
 import { createContext, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
 
 const AuthContext = createContext()
 
@@ -53,6 +54,7 @@ export function AuthProvider({ children }) {
 			const data = await response.json()
 			if (data) {
 				setUser(data)
+				console.log('User is_worker:', data.is_worker)
 				await fetchOrders(data.id, token)
 				return data
 			} else {
@@ -123,6 +125,26 @@ export function AuthProvider({ children }) {
 		}
 	}
 
+	const fetchAllOrders = useCallback(async (token) => {
+		try {
+			console.log('Access token in fetchAllOrders:', token)
+			const response = await fetch(
+				`http://localhost:8000/orders/`,
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+			const data = await response.json()
+			console.log('All orders fetched:', data)
+			setOrders(Array.isArray(data) ? data : [])
+		} catch (error) {
+			console.error('Error fetching all orders:', error)
+			setOrders([])
+		}
+	}, [])
+
 	const createOrder = async tariffId => {
 		try {
 			const body = { tariff_id: tariffId }
@@ -155,7 +177,7 @@ export function AuthProvider({ children }) {
 	}
 
 	return (
-		<AuthContext.Provider value={{ user, orders, login, createOrder, updateUser, fetchUser, accessToken, logout }}>
+		<AuthContext.Provider value={{ user, orders, login, createOrder, updateUser, fetchUser, fetchAllOrders, accessToken, logout }}>
 			{children}
 		</AuthContext.Provider>
 	)

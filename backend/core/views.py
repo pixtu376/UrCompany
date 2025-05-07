@@ -15,7 +15,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
-        serializer = self.get_serializer(request.user)
+        from .serializers import UserSerializer
+        serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 from rest_framework import permissions
@@ -49,10 +50,30 @@ class OrderViewSet(viewsets.ModelViewSet):
     filterset_fields = ['user']
     
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
+        user = self.request.user
+        if hasattr(user, 'is_worker') and user.is_worker:
+            # Если пользователь работник, возвращаем все заказы без фильтрации
+            return Order.objects.all()
+        # Иначе возвращаем заказы только текущего пользователя
+        return Order.objects.filter(user=user)
+
+    def get_filterset(self, *args, **kwargs):
+        user = self.request.user
+        if hasattr(user, 'is_worker') and user.is_worker:
+            # Отключаем фильтрацию для работников
+            return None
+        return super().get_filterset(*args, **kwargs)
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        queryset = self.filter_queryset(self.get_queryset())
+        print(f"OrderViewSet.list called by user: {user} (is_worker={getattr(user, 'is_worker', None)})")
+        print(f"Number of orders returned: {queryset.count()}")
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 class WorkerViewSet(viewsets.ModelViewSet):
     queryset = Worker.objects.all()
