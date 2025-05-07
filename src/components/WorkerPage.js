@@ -20,30 +20,21 @@ const WorkerPage = () => {
       {orders.length === 0 ? (
         <p>Заказы отсутствуют</p>
       ) : (
-        <table border="1" cellPadding="5" cellSpacing="0">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Пользователь</th>
-              <th>Тариф</th>
-              <th>Статус</th>
-              <th>Срок</th>
-              <th>Кастомное имя</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => (
-              <tr key={order.id}>
-                <td>{order.id}</td>
-                <td>{typeof order.user === 'object' ? order.user.email || order.user.id : order.user}</td>
-                <td>{order.tariff ? order.tariff.name : ''}</td>
-                <td>{order.status}</td>
-                <td>{order.deadline}</td>
-                <td>{order.custom_name}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className='applications-list'>
+          {orders.map((order) => (
+            <div key={order.id} className='application-item'>
+              <div className='application-info'>
+                <p className='service-name'>{order.tariff?.name || 'Не указано'}</p>
+                <p className='registration-date'>{order.user_full_name || 'Не указано'}</p>
+                <p className='total-check'>{order.tariff?.price ? `${order.tariff.price} ₽` : 'Не указано'}</p>
+              </div>
+              <div className='application-actions'>
+                <button className='status-btn'>Статус</button>
+                <button className='cancel-btn'>Отменить заявку</button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

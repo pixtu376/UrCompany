@@ -128,17 +128,23 @@ export function AuthProvider({ children }) {
 	const fetchAllOrders = useCallback(async (token) => {
 		try {
 			console.log('Access token in fetchAllOrders:', token)
-			const response = await fetch(
-				`http://localhost:8000/orders/`,
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			)
-			const data = await response.json()
-			console.log('All orders fetched:', data)
-			setOrders(Array.isArray(data) ? data : [])
+		const response = await fetch(
+			`http://localhost:8000/orders/`,
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			}
+		)
+		if (!response.ok) {
+			const errorText = await response.text()
+			console.error('Error response text:', errorText)
+			setOrders([])
+			return
+		}
+		const data = await response.json()
+		console.log('All orders fetched:', data)
+		setOrders(Array.isArray(data) ? data : [])
 		} catch (error) {
 			console.error('Error fetching all orders:', error)
 			setOrders([])

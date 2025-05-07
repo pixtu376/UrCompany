@@ -24,10 +24,16 @@ class OrderSerializer(serializers.ModelSerializer):
     tariff = TariffSerializer(read_only=True)
     tariff_id = serializers.PrimaryKeyRelatedField(queryset=Tariff.objects.all(), source='tariff', write_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user_full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['id', 'user', 'tariff', 'tariff_id', 'user_full_name', 'custom_name', 'status', 'deadline', 'created_at']
+
+    def get_user_full_name(self, obj):
+        user = obj.user
+        full_name = f"{user.last_name or ''} {user.first_name or ''} {getattr(user, 'middle_name', '')}".strip()
+        return full_name if full_name else 'Не указано'
 
 class WorkerSerializer(serializers.ModelSerializer):
     class Meta:

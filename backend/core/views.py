@@ -46,8 +46,8 @@ class TariffViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user']
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['user']
     
     def get_queryset(self):
         user = self.request.user
@@ -68,12 +68,18 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        user = request.user
-        queryset = self.filter_queryset(self.get_queryset())
-        print(f"OrderViewSet.list called by user: {user} (is_worker={getattr(user, 'is_worker', None)})")
-        print(f"Number of orders returned: {queryset.count()}")
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        try:
+            user = request.user
+            queryset = self.filter_queryset(self.get_queryset())
+            print(f"OrderViewSet.list called by user: {user} (is_worker={getattr(user, 'is_worker', None)})")
+            print(f"Number of orders returned: {queryset.count()}")
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            import traceback
+            print("Exception in OrderViewSet.list:", e)
+            traceback.print_exc()
+            return Response({'detail': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class WorkerViewSet(viewsets.ModelViewSet):
     queryset = Worker.objects.all()
