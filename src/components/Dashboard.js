@@ -26,7 +26,9 @@ const Dashboard = () => {
       setActiveTab('Мои данные')
     }
   }
+
   const [loading, setLoading] = useState(true)
+  const [notifications, setNotifications] = React.useState([])
 
   useEffect(() => {
     if (accessToken && loading) {
@@ -37,6 +39,28 @@ const Dashboard = () => {
   useEffect(() => {
     setLocalOrders(orders)
   }, [orders])
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/notifications/', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        if (!response.ok) {
+          throw new Error('Ошибка загрузки уведомлений')
+        }
+        const data = await response.json()
+        setNotifications(data)
+      } catch (error) {
+        console.error('Error fetching notifications:', error)
+      }
+    }
+    if (accessToken) {
+      fetchNotifications()
+    }
+  }, [accessToken])
 
   if (!user && !loading) {
     return <Navigate to='/login' replace />
@@ -105,7 +129,18 @@ const Dashboard = () => {
           {activeTab === 'Уведомления' && (
             <section>
               <h2>Уведомления</h2>
-              <p>Здесь будут отображаться уведомления пользователя.</p>
+              {notifications.length === 0 ? (
+                <p>Уведомлений нет</p>
+              ) : (
+                <ul className="notifications-list">
+                  {notifications.map((notification) => (
+                    <li key={notification.id} className={notification.is_read ? 'read' : 'unread'}>
+                      <p>{notification.message}</p>
+                      <small>{new Date(notification.created_at).toLocaleString()}</small>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           )}
 

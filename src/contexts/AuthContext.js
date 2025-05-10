@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react'
+import { createContext, useState, useContext, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCallback } from 'react'
 
@@ -7,12 +7,20 @@ const AuthContext = createContext()
 export function AuthProvider({ children }) {
 	const [user, setUser] = useState(null)
 	const [orders, setOrders] = useState([])
+	const [tariffs, setTariffs] = useState([])
 	const [accessToken, setAccessToken] = useState(null)
 	const navigate = useNavigate()
+	const isMounted = useRef(true)
+
+	useEffect(() => {
+		return () => {
+			isMounted.current = false
+		}
+	}, [])
 
 	const login = async credentials => {
 		try {
-			const response = await fetch('http://localhost:8000/auth/token/', {
+			const response = await fetch('/auth/token/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(credentials),
@@ -39,7 +47,7 @@ export function AuthProvider({ children }) {
 	const fetchUser = async (token) => {
 		try {
 			console.log('Access token in fetchUser:', token)
-			const response = await fetch('http://localhost:8000/users/me/', {
+			const response = await fetch('/users/me/', {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -48,7 +56,9 @@ export function AuthProvider({ children }) {
 				console.error('Unauthorized in fetchUser, redirecting to login')
 				setUser(null)
 				setAccessToken(null)
-				navigate('/login')
+				if (isMounted.current) {
+					navigate('/login')
+				}
 				return null
 			}
 			const data = await response.json()
@@ -56,6 +66,7 @@ export function AuthProvider({ children }) {
 				setUser(data)
 				console.log('User is_worker:', data.is_worker)
 				await fetchOrders(data.id, token)
+				await fetchTariffs(token)
 				return data
 			} else {
 				setUser(null)
@@ -68,6 +79,24 @@ export function AuthProvider({ children }) {
 		}
 	}
 
+	const fetchTariffs = async (token) => {
+		try {
+			const response = await fetch('/tariffs/', {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			if (!response.ok) {
+				throw new Error('Ошибка загрузки тарифов')
+			}
+			const data = await response.json()
+			setTariffs(data)
+		} catch (error) {
+			console.error('Error fetching tariffs:', error)
+			setTariffs([])
+		}
+	}
+
 	const updateUser = async (updatedData, token) => {
 		if (!token || !user) {
 			console.error('No access token or user to update')
@@ -75,7 +104,7 @@ export function AuthProvider({ children }) {
 		}
 		try {
 			console.log('Updating user with data:', updatedData)
-			const response = await fetch(`http://localhost:8000/users/${user.id}/`, {
+			const response = await fetch(`/users/${user.id}/`, {
 				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json',
@@ -88,7 +117,9 @@ export function AuthProvider({ children }) {
 				console.error('Unauthorized in updateUser, redirecting to login')
 				setUser(null)
 				setAccessToken(null)
-				navigate('/login')
+				if (isMounted.current) {
+					navigate('/login')
+				}
 				return
 			}
 			if (!response.ok) {
@@ -109,7 +140,7 @@ export function AuthProvider({ children }) {
 			console.log('Access token in fetchOrders:', token)
 			console.log('Fetching orders for userId:', userId)
 			const response = await fetch(
-				`http://localhost:8000/orders/?user=${userId}`,
+				`/orders/?user=${userId}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -129,7 +160,7 @@ export function AuthProvider({ children }) {
 		try {
 			console.log('Access token in fetchAllOrders:', token)
 		const response = await fetch(
-			`http://localhost:8000/orders/`,
+			`/orders/`,
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -156,7 +187,7 @@ export function AuthProvider({ children }) {
 			const body = { tariff_id: tariffId }
 			console.log('Access token in createOrder:', accessToken)
 			console.log('Request body in createOrder:', body)
-			const response = await fetch('http://localhost:8000/orders/', {
+			const response = await fetch('/orders/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -179,11 +210,13 @@ export function AuthProvider({ children }) {
 	const logout = () => {
 		setUser(null)
 		setAccessToken(null)
-		navigate('/login')
+		if (isMounted.current) {
+			navigate('/login')
+		}
 	}
 
 	return (
-		<AuthContext.Provider value={{ user, orders, setOrders, login, createOrder, updateUser, fetchUser, fetchAllOrders, accessToken, logout }}>
+		<AuthContext.Provider value={{ user, orders, setOrders, tariffs, setTariffs, login, createOrder, updateUser, fetchUser, fetchAllOrders, fetchTariffs, accessToken, logout }}>
 			{children}
 		</AuthContext.Provider>
 	)

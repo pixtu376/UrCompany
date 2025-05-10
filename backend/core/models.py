@@ -79,7 +79,7 @@ class Worker(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'В обработке'),
+        ('pending', 'На рассмотрении'),
         ('in_progress', 'Выполняется'),
         ('under_review', 'На проверке'),
         ('cancelled', 'Отменен'),
@@ -92,8 +92,19 @@ class Order(models.Model):
     tariff = models.ForeignKey(Tariff, on_delete=models.CASCADE)
     custom_name = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    worker = models.ForeignKey('Worker', on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     deadline = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f"{self.user.email} - {self.tariff.name}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.email} - {self.message[:20]}"

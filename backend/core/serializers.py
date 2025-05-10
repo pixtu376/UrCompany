@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import User, Tariff, Order, Worker
+from .models import User, Tariff, Order, Worker, Notification
+
 
 from rest_framework import serializers
 from .models import User, Tariff, Order, Worker
@@ -25,10 +26,11 @@ class OrderSerializer(serializers.ModelSerializer):
     tariff_id = serializers.PrimaryKeyRelatedField(queryset=Tariff.objects.all(), source='tariff', write_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
     user_full_name = serializers.SerializerMethodField()
+    worker = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'tariff', 'tariff_id', 'user_full_name', 'custom_name', 'status', 'deadline', 'created_at']
+        fields = ['id', 'user', 'tariff', 'tariff_id', 'user_full_name', 'custom_name', 'status', 'deadline', 'created_at', 'worker']
 
     def get_user_full_name(self, obj):
         user = obj.user
@@ -38,4 +40,9 @@ class OrderSerializer(serializers.ModelSerializer):
 class WorkerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Worker
+        fields = '__all__'
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
         fields = '__all__'

@@ -39,53 +39,156 @@ const WorkerPage = () => {
                 <p className='total-check'>{order.tariff?.price ? `${order.tariff.price} ₽` : 'Не указано'}</p>
                 <p className='order-status'>Статус: {statusLabels[order.status] || 'Не указан'}</p>
               </div>
-              <div className='application-actions' style={{ display: 'flex', gap: '10px' }}>
-                <select
-                  value={order.status}
-                  onChange={async (e) => {
-                    const newStatus = e.target.value
-                    try {
-                      const response = await fetch(`http://localhost:8000/orders/${order.id}/`, {
-                        method: 'PATCH',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          Authorization: `Bearer ${accessToken}`,
-                        },
-                        body: JSON.stringify({ status: newStatus }),
-                      })
-                      if (!response.ok) {
-                        throw new Error('Ошибка обновления статуса')
+              <div className='application-actions' style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                {order.status === 'pending' && !order.worker && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(`http://localhost:8000/orders/${order.id}/take_order/`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${accessToken}`,
+                          },
+                        })
+                        if (!response.ok) {
+                          throw new Error('Ошибка взятия заказа')
+                        }
+                        const updatedOrder = await response.json()
+                        setOrders((prevOrders) =>
+                          prevOrders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
+                        )
+                      } catch (error) {
+                        console.error('Error taking order:', error)
+                        alert('Ошибка при взятии заказа')
                       }
-                      // Обновляем локальное состояние orders
-                      const updatedOrder = await response.json()
-                      setOrders((prevOrders) =>
-                        prevOrders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
-                      )
-                    } catch (error) {
-                      console.error('Error updating order status:', error)
-                      alert('Ошибка при обновлении статуса')
-                    }
-                  }}
-                  style={{
-                    marginRight: '10px',
-                    padding: '6px 12px',
-                    borderRadius: '4px',
-                    border: '1px solid #ccc',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.3s ease',
-                  }}
-                  onFocus={e => e.currentTarget.style.borderColor = '#007bff'}
-                  onBlur={e => e.currentTarget.style.borderColor = '#ccc'}
-                >
-                  <option value="pending">В обработке</option>
-                  <option value="in_progress">Выполняется</option>
-                  <option value="under_review">На проверке</option>
-                  <option value="cancelled">Отменен</option>
-                  <option value="completed">Завершен</option>
-                  <option value="failed">Неудача</option>
-                  <option value="refunded">Возврат</option>
-                </select>
+                    }}
+                    style={{
+                      marginRight: '10px',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      border: '1px solid #28a745',
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s ease',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#218838'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#28a745'}
+                  >
+                    Взяться
+                  </button>
+                )}
+                {order.worker && order.worker === user.id && order.status !== 'completed' && (
+                  <>
+                    <select
+                      value={order.status}
+                      onChange={async (e) => {
+                        const newStatus = e.target.value
+                        try {
+                          const response = await fetch(`http://localhost:8000/orders/${order.id}/`, {
+                            method: 'PATCH',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${accessToken}`,
+                            },
+                            body: JSON.stringify({ status: newStatus }),
+                          })
+                          if (!response.ok) {
+                            throw new Error('Ошибка обновления статуса')
+                          }
+                          const updatedOrder = await response.json()
+                          setOrders((prevOrders) =>
+                            prevOrders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
+                          )
+                        } catch (error) {
+                          console.error('Error updating order status:', error)
+                          alert('Ошибка при обновлении статуса')
+                        }
+                      }}
+                      style={{
+                        marginRight: '10px',
+                        padding: '6px 12px',
+                        borderRadius: '4px',
+                        border: '1px solid #ccc',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        transition: 'border-color 0.3s ease',
+                      }}
+                      onFocus={e => e.currentTarget.style.borderColor = '#007bff'}
+                      onBlur={e => e.currentTarget.style.borderColor = '#ccc'}
+                    >
+                      <option value="pending">В обработке</option>
+                      <option value="in_progress">Выполняется</option>
+                      <option value="under_review">На проверке</option>
+                      <option value="cancelled">Отменен</option>
+                      <option value="completed">Завершен</option>
+                      <option value="failed">Неудача</option>
+                      <option value="refunded">Возврат</option>
+                    </select>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(`http://localhost:8000/orders/${order.id}/finish_order/`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${accessToken}`,
+                            },
+                          })
+                          if (!response.ok) {
+                            throw new Error('Ошибка завершения заказа')
+                          }
+                          const updatedOrder = await response.json()
+                          setOrders((prevOrders) =>
+                            prevOrders.map((o) => (o.id === updatedOrder.id ? updatedOrder : o))
+                          )
+                        } catch (error) {
+                          console.error('Error finishing order:', error)
+                          alert('Ошибка при завершении заказа')
+                        }
+                      }}
+                      style={{
+                        backgroundColor: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        padding: '6px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        transition: 'background-color 0.3s ease',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c82333'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = '#dc3545'}
+                    >
+                      Закончить
+                    </button>
+                  </>
+                )}
+                {!order.worker && (
+                  <select
+                    value={order.status}
+                    disabled
+                    style={{
+                      marginRight: '10px',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      border: '1px solid #ccc',
+                      fontSize: '14px',
+                      backgroundColor: '#e9ecef',
+                      cursor: 'not-allowed',
+                    }}
+                  >
+                    <option value="pending">В обработке</option>
+                    <option value="in_progress">Выполняется</option>
+                    <option value="under_review">На проверке</option>
+                    <option value="cancelled">Отменен</option>
+                    <option value="completed">Завершен</option>
+                    <option value="failed">Неудача</option>
+                    <option value="refunded">Возврат</option>
+                  </select>
+                )}
                 <button
                   className='chat-btn'
                   onClick={() => {
