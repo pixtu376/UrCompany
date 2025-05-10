@@ -165,10 +165,18 @@ from .serializers import UserSerializer, TariffSerializer, OrderSerializer, Work
 
 from .serializers import NotificationSerializer
 
-class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
+class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         return Notification.objects.filter(user=user).order_by('-created_at')
+
+    def partial_update(self, request, *args, **kwargs):
+        notification = self.get_object()
+        if notification.user != request.user:
+            from rest_framework.response import Response
+            from rest_framework import status
+            return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
+        return super().partial_update(request, *args, **kwargs)

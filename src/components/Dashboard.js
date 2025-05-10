@@ -62,6 +62,44 @@ const Dashboard = () => {
     }
   }, [accessToken])
 
+  useEffect(() => {
+    if (activeTab === 'Уведомления' && notifications.length > 0) {
+      const unreadNotificationIds = notifications
+        .filter(notification => !notification.is_read)
+        .map(notification => notification.id)
+
+      if (unreadNotificationIds.length > 0) {
+        const markNotificationsRead = async () => {
+          try {
+            await Promise.all(
+              unreadNotificationIds.map(id =>
+                fetch(`http://localhost:8000/notifications/${id}/`, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                  body: JSON.stringify({ is_read: true }),
+                })
+              )
+            )
+            // Обновить локальное состояние уведомлений
+            setNotifications(prevNotifications =>
+              prevNotifications.map(notification =>
+                unreadNotificationIds.includes(notification.id)
+                  ? { ...notification, is_read: true }
+                  : notification
+              )
+            )
+          } catch (error) {
+            console.error('Error marking notifications as read:', error)
+          }
+        }
+        markNotificationsRead()
+      }
+    }
+  }, [activeTab, notifications, accessToken])
+
   if (!user && !loading) {
     return <Navigate to='/login' replace />
   }
@@ -114,9 +152,12 @@ const Dashboard = () => {
               <li
                 className={activeTab === 'Уведомления' ? 'active' : ''}
                 onClick={() => handleTabClick('Уведомления')}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
               >
-                Уведомления
+                <span>Уведомления</span>
+                <span className="notification-counter">
+                  {notifications.filter(notification => !notification.is_read).length}
+                </span>
               </li>
               <li className='user-name'>
                 {user?.email || 'Пользователь'}
