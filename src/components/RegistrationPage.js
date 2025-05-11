@@ -36,10 +36,16 @@ function RegistrationPage() {
 		resolver: yupResolver(schema),
 	})
 
-	const onSubmit = data => {
-		console.log({ ...data, userType: activeTab })
-		login({ ...data, userType: activeTab })
-		navigate('/dashboard')
+	const onSubmit = async data => {
+		try {
+			console.log({ ...data, userType: activeTab })
+			await register({ ...data, userType: activeTab })
+			await login({ email: data.email, password: data.password })
+			navigate('/dashboard')
+		} catch (error) {
+			console.error('Registration failed:', error)
+			// Можно добавить уведомление об ошибке регистрации
+		}
 	}
 
 	return (

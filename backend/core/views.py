@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 from .models import User, Tariff, Order, Worker, Chat, Message
 from .serializers import UserSerializer, TariffSerializer, OrderSerializer, WorkerSerializer, ChatSerializer, MessageSerializer
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -18,6 +18,21 @@ class UserViewSet(viewsets.ModelViewSet):
         from .serializers import UserSerializer
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def register_user(request):
+    from django.contrib.auth.hashers import make_password
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        # Хешируем пароль перед сохранением
+        password = serializer.validated_data.get('password')
+        if password:
+            serializer.validated_data['password'] = make_password(password)
+        user = serializer.save()
+        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ChatViewSet(viewsets.ModelViewSet):
     serializer_class = ChatSerializer

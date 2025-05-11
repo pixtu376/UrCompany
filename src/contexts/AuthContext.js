@@ -7,16 +7,19 @@ export function AuthProvider({ children }) {
 	const [user, setUser] = useState(null)
 	const [orders, setOrders] = useState([])
 	const [tariffs, setTariffs] = useState([])
-	const [accessToken, setAccessToken] = useState(null)
-	const [refreshToken, setRefreshToken] = useState(null)
+	const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken'))
+	const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken'))
 	const navigate = useNavigate()
 	const isMounted = useRef(true)
 
 	useEffect(() => {
+		if (accessToken) {
+			fetchUser(accessToken)
+		}
 		return () => {
 			isMounted.current = false
 		}
-	}, [])
+	}, [accessToken])
 
 	const login = async credentials => {
 		try {
@@ -31,6 +34,8 @@ export function AuthProvider({ children }) {
 			const data = await response.json()
 			setAccessToken(data.access)
 			setRefreshToken(data.refresh)
+			localStorage.setItem('accessToken', data.access)
+			localStorage.setItem('refreshToken', data.refresh)
 			const userData = await fetchUser(data.access)
 			// Навигация в зависимости от роли пользователя
 			if (userData && userData.is_staff) {
@@ -42,6 +47,24 @@ export function AuthProvider({ children }) {
 			}
 		} catch (error) {
 			console.error('Login error:', error)
+		}
+	}
+
+	const register = async (registrationData) => {
+		try {
+			const response = await fetch('/auth/register/', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(registrationData),
+			})
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(errorData.detail || 'Ошибка регистрации')
+			}
+			return await response.json()
+		} catch (error) {
+			console.error('Registration error:', error)
+			throw error
 		}
 	}
 
@@ -232,13 +255,15 @@ export function AuthProvider({ children }) {
 		setUser(null)
 		setAccessToken(null)
 		setRefreshToken(null)
+		localStorage.removeItem('accessToken')
+		localStorage.removeItem('refreshToken')
 		if (isMounted.current) {
 			navigate('/login')
 		}
 	}
 
 	return (
-		<AuthContext.Provider value={{ user, orders, setOrders, tariffs, setTariffs, login, createOrder, updateUser, fetchUser, fetchAllOrders, fetchTariffs, accessToken, logout, authFetch }}>
+		<AuthContext.Provider value={{ user, orders, setOrders, tariffs, setTariffs, login, register, createOrder, updateUser, fetchUser, fetchAllOrders, fetchTariffs, accessToken, logout, authFetch }}>
 			{children}
 		</AuthContext.Provider>
 	)
