@@ -95,9 +95,9 @@ const Chat = () => {
   }
 
   return (
-    <div className="chat-container" style={{ height: '80vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="chat-container">
       <button onClick={handleBack} className="back-chat-button">Назад</button>
-      <div className="messages" style={{ flexGrow: 1, overflowY: 'auto', minHeight: '75vh' }}>
+      <div className="messages">
         {messages.map(message => {
           const isUserMessage = message.sender_user !== null
           return (
@@ -110,14 +110,13 @@ const Chat = () => {
         })}
         <div ref={messagesEndRef} />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className="input-container">
         <textarea
           className="message-input"
           value={newMessage}
           onChange={e => setNewMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Введите сообщение..."
-          style={{ resize: 'none' }}
         />
         <button onClick={handleSendMessage} className="send-button">Отправить</button>
       </div>
