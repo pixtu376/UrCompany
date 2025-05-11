@@ -27,6 +27,8 @@ class ChatViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if hasattr(user, 'is_worker') and user.is_worker:
             worker = Worker.objects.filter(login=user.email).first()
+            if not worker:
+                return Chat.objects.none()
             return Chat.objects.filter(worker=worker)
         else:
             return Chat.objects.filter(user=user, chat_type='user')
@@ -76,29 +78,9 @@ class MessageViewSet(viewsets.ModelViewSet):
                 worker = Worker.objects.filter(login=user.email).first()
                 logger.info(f"Message sender is worker: {worker}")
                 message = serializer.save(sender_worker=worker, chat=chat)
-                # Дублируем сообщение в чат с другим chat_type
-                other_chat_type = 'user'
-                other_chat = Chat.objects.filter(order=chat.order, chat_type=other_chat_type).first()
-                if other_chat:
-                    from .models import Message as MessageModel
-                    MessageModel.objects.create(
-                        chat=other_chat,
-                        sender_worker=worker,
-                        text=message.text
-                    )
             else:
                 logger.info(f"Message sender is user: {user}")
                 message = serializer.save(sender_user=user, chat=chat)
-                # Дублируем сообщение в чат с другим chat_type
-                other_chat_type = 'worker'
-                other_chat = Chat.objects.filter(order=chat.order, chat_type=other_chat_type).first()
-                if other_chat:
-                    from .models import Message as MessageModel
-                    MessageModel.objects.create(
-                        chat=other_chat,
-                        sender_user=user,
-                        text=message.text
-                    )
         except ValidationError as e:
             logger.error(f"Validation error when saving message: {e.detail}")
             raise e
