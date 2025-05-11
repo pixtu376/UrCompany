@@ -2,8 +2,12 @@ import React, { useState, useEffect, useRef } from 'react'
 import '../Styles/Chat.css'
 import { useAuth } from '../contexts/AuthContext'
 
-const Chat = ({ chatId }) => {
-  const { authFetch } = useAuth()
+import { useParams, useNavigate } from 'react-router-dom'
+
+const Chat = () => {
+  const { chatId } = useParams()
+  const { authFetch, accessToken, user } = useAuth()
+  const navigate = useNavigate()
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const messagesEndRef = useRef(null)
@@ -11,7 +15,24 @@ const Chat = ({ chatId }) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await authFetch(`http://localhost:8000/messages/?chat_id=${chatId}`)
+        // Always fetch chat with chat_type='user' for the current order
+        // First fetch chats for the user to get the chat with chat_type='user'
+        const chatsResponse = await authFetch('http://localhost:8000/chats/')
+        if (!chatsResponse.ok) {
+          throw new Error('Ошибка загрузки чатов')
+        }
+        const chats = await chatsResponse.json()
+        // Find chat with chat_type='user' matching current chatId order
+        const currentChat = chats.find(chat => chat.id === parseInt(chatId))
+        let userChatId = chatId
+        if (currentChat && currentChat.chat_type !== 'user') {
+          // Find chat with chat_type='user' for the same order
+          const userChat = chats.find(chat => chat.order_id === currentChat.order_id && chat.chat_type === 'user')
+          if (userChat) {
+            userChatId = userChat.id
+          }
+        }
+        const response = await authFetch(`http://localhost:8000/messages/?chat_id=${userChatId}`)
         if (!response.ok) {
           throw new Error('Ошибка загрузки сообщений')
         }
@@ -32,8 +53,18 @@ const Chat = ({ chatId }) => {
     }
   }, [messages])
 
+  const handleBack = () => {
+    if (user && user.is_worker) {
+      navigate('/worker')
+    } else {
+      navigate('/dashboard')
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return
+    console.log('Sending message to chatId:', chatId)
+    console.log('Access token used:', accessToken)
     try {
       const response = await authFetch('http://localhost:8000/messages/', {
         method: 'POST',
@@ -64,8 +95,9 @@ const Chat = ({ chatId }) => {
   }
 
   return (
-    <div className="chat-container">
-      <div className="messages">
+    <div className="chat-container" style={{ height: '80vh', display: 'flex', flexDirection: 'column' }}>
+      <button onClick={handleBack} className="back-chat-button">Назад</button>
+      <div className="messages" style={{ flexGrow: 1, overflowY: 'auto', minHeight: '75vh' }}>
         {messages.map(message => {
           const isUserMessage = message.sender_user !== null
           return (
@@ -78,14 +110,17 @@ const Chat = ({ chatId }) => {
         })}
         <div ref={messagesEndRef} />
       </div>
-      <textarea
-        className="message-input"
-        value={newMessage}
-        onChange={e => setNewMessage(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Введите сообщение..."
-      />
-      <button onClick={handleSendMessage} className="send-button">Отправить</button>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <textarea
+          className="message-input"
+          value={newMessage}
+          onChange={e => setNewMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Введите сообщение..."
+          style={{ resize: 'none' }}
+        />
+        <button onClick={handleSendMessage} className="send-button">Отправить</button>
+      </div>
     </div>
   )
 }

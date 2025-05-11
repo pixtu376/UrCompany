@@ -56,22 +56,52 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Message.objects.none()
         return Message.objects.filter(chat_id=chat_id).order_by('created_at')
 
+    from rest_framework.response import Response
+    from rest_framework import status as drf_status
+    from rest_framework.exceptions import ValidationError
+
     def perform_create(self, serializer):
         user = self.request.user
         chat_id = self.request.data.get('chat')
+        import logging
+        from rest_framework.exceptions import ValidationError
+        logger = logging.getLogger(__name__)
+        logger.info(f"Attempt to send message by user {user} to chat {chat_id} with data: {self.request.data}")
         chat = Chat.objects.filter(id=chat_id).first()
         if not chat:
-            raise serializers.ValidationError("Чат не найден")
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.info(f"User {user} is sending message to chat {chat_id}")
-        if hasattr(user, 'is_worker') and user.is_worker:
-            worker = Worker.objects.filter(login=user.email).first()
-            logger.info(f"Message sender is worker: {worker}")
-            serializer.save(sender_worker=worker, chat=chat)
-        else:
-            logger.info(f"Message sender is user: {user}")
-            serializer.save(sender_user=user, chat=chat)
+            logger.error(f"Chat with id {chat_id} not found")
+            raise ValidationError({"chat": ["Чат не найден"]})
+        try:
+            if hasattr(user, 'is_worker') and user.is_worker:
+                worker = Worker.objects.filter(login=user.email).first()
+                logger.info(f"Message sender is worker: {worker}")
+                message = serializer.save(sender_worker=worker, chat=chat)
+                # Дублируем сообщение в чат с другим chat_type
+                other_chat_type = 'user'
+                other_chat = Chat.objects.filter(order=chat.order, chat_type=other_chat_type).first()
+                if other_chat:
+                    from .models import Message as MessageModel
+                    MessageModel.objects.create(
+                        chat=other_chat,
+                        sender_worker=worker,
+                        text=message.text
+                    )
+            else:
+                logger.info(f"Message sender is user: {user}")
+                message = serializer.save(sender_user=user, chat=chat)
+                # Дублируем сообщение в чат с другим chat_type
+                other_chat_type = 'worker'
+                other_chat = Chat.objects.filter(order=chat.order, chat_type=other_chat_type).first()
+                if other_chat:
+                    from .models import Message as MessageModel
+                    MessageModel.objects.create(
+                        chat=other_chat,
+                        sender_user=user,
+                        text=message.text
+                    )
+        except ValidationError as e:
+            logger.error(f"Validation error when saving message: {e.detail}")
+            raise e
 
 from rest_framework import permissions
 

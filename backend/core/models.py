@@ -113,6 +113,7 @@ class Chat(models.Model):
     CHAT_TYPE_CHOICES = [
         ('user', 'Чат пользователя'),
         ('worker', 'Чат работника'),
+        ('common', 'Общий чат'),
     ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='chats')
     chat_type = models.CharField(max_length=10, choices=CHAT_TYPE_CHOICES)
