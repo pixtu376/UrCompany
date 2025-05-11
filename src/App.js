@@ -13,6 +13,7 @@ import Tariffs from './components/Tariffs'
 import TariffDetail from './components/TariffDetail'
 import AdminTariffsPage from './components/AdminTariffsPage'
 import WorkerPage from './components/WorkerPage'
+import Chat from './components/Chat'
 
 function App() {
 	return (
@@ -29,6 +30,7 @@ function App() {
 				<Route path='tariff/:id' element={<TariffDetail />} />
 				<Route path='admin-tariffs' element={<AdminTariffsPage />} />
 				<Route path='worker' element={<WorkerPage />} />
+				<Route path='chat/:chatId' element={<Chat />} />
 			</Route>
 		</Routes>
 	)

@@ -1,9 +1,6 @@
 from rest_framework import serializers
 from .models import User, Tariff, Order, Worker, Notification
-
-
-from rest_framework import serializers
-from .models import User, Tariff, Order, Worker
+from .models import Chat, Message
 
 class UserSerializer(serializers.ModelSerializer):
     is_worker = serializers.SerializerMethodField()
@@ -46,3 +43,13 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
+
+class ChatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        fields = ['id', 'order', 'chat_type', 'user', 'worker']
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['id', 'chat', 'sender_user', 'sender_worker', 'text', 'created_at', 'is_read']

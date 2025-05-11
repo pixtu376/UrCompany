@@ -108,3 +108,28 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.email} - {self.message[:20]}"
+
+class Chat(models.Model):
+    CHAT_TYPE_CHOICES = [
+        ('user', 'Чат пользователя'),
+        ('worker', 'Чат работника'),
+    ]
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='chats')
+    chat_type = models.CharField(max_length=10, choices=CHAT_TYPE_CHOICES)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chats')
+    worker = models.ForeignKey(Worker, on_delete=models.CASCADE, related_name='chats')
+
+    def __str__(self):
+        return f"Chat {self.chat_type} for order {self.order.id}"
+
+class Message(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='messages')
+    sender_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    sender_worker = models.ForeignKey(Worker, on_delete=models.CASCADE, null=True, blank=True)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        sender = self.sender_user.email if self.sender_user else self.sender_worker.full_name if self.sender_worker else "Unknown"
+        return f"Message from {sender} at {self.created_at}"

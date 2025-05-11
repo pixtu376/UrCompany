@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const statusLabels = {
   pending: 'В обработке',
@@ -13,6 +14,7 @@ const statusLabels = {
 
 const WorkerPage = () => {
   const { user, orders, fetchAllOrders, accessToken, setOrders } = useAuth();
+  const navigate = useNavigate();
 
   console.log('WorkerPage user:', user);
   console.log('WorkerPage orders:', orders);
@@ -192,8 +194,7 @@ const WorkerPage = () => {
                 <button
                   className='chat-btn'
                   onClick={() => {
-                    // Переход в чат, например, на страницу /chat/:orderId
-                    window.location.href = `/chat/${order.id}`
+                    navigate(`/chat/${order.id}`)
                   }}
                   style={{
                     backgroundColor: '#5A4943',

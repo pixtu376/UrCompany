@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions
-from .models import User, Tariff, Order, Worker
-from .serializers import UserSerializer, TariffSerializer, OrderSerializer, WorkerSerializer
+from .models import User, Tariff, Order, Worker, Chat, Message
+from .serializers import UserSerializer, TariffSerializer, OrderSerializer, WorkerSerializer, ChatSerializer, MessageSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -18,6 +18,60 @@ class UserViewSet(viewsets.ModelViewSet):
         from .serializers import UserSerializer
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ChatViewSet(viewsets.ModelViewSet):
+    serializer_class = ChatSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, 'is_worker') and user.is_worker:
+            worker = Worker.objects.filter(login=user.email).first()
+            return Chat.objects.filter(worker=worker)
+        else:
+            return Chat.objects.filter(user=user, chat_type='user')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        data = []
+        for chat in queryset:
+            unread_count = chat.messages.filter(is_read=False).exclude(sender_user=request.user if not (hasattr(request.user, 'is_worker') and request.user.is_worker) else None).count()
+            data.append({
+                'id': chat.id,
+                'order_id': chat.order.id,
+                'order_name': chat.order.custom_name or chat.order.tariff.name,
+                'chat_type': chat.chat_type,
+                'worker_name': chat.worker.full_name,
+                'unread_messages': unread_count,
+            })
+        return Response(data)
+
+class MessageViewSet(viewsets.ModelViewSet):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        chat_id = self.request.query_params.get('chat_id')
+        if not chat_id:
+            return Message.objects.none()
+        return Message.objects.filter(chat_id=chat_id).order_by('created_at')
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        chat_id = self.request.data.get('chat')
+        chat = Chat.objects.filter(id=chat_id).first()
+        if not chat:
+            raise serializers.ValidationError("Чат не найден")
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"User {user} is sending message to chat {chat_id}")
+        if hasattr(user, 'is_worker') and user.is_worker:
+            worker = Worker.objects.filter(login=user.email).first()
+            logger.info(f"Message sender is worker: {worker}")
+            serializer.save(sender_worker=worker, chat=chat)
+        else:
+            logger.info(f"Message sender is user: {user}")
+            serializer.save(sender_user=user, chat=chat)
 
 from rest_framework import permissions
 
@@ -101,14 +155,26 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.status = 'in_progress'
         order.save()
         # Создаем уведомление для пользователя
-        from .models import Notification
+        from .models import Notification, Chat
         Notification.objects.create(
             user=order.user,
             order=order,
             message=f"Ваш заказ #{order.id} взят в работу."
         )
+        # Создаем чаты для пользователя и работника, если их еще нет
+        if not Chat.objects.filter(order=order, chat_type='user').exists():
+            Chat.objects.create(order=order, chat_type='user', user=order.user, worker=worker)
+        if not Chat.objects.filter(order=order, chat_type='worker').exists():
+            Chat.objects.create(order=order, chat_type='worker', user=order.user, worker=worker)
         serializer = self.get_serializer(order)
         return Response(serializer.data)
+
+    def perform_destroy(self, instance):
+        from .models import Chat
+        # Удаляем связанные чаты
+        Chat.objects.filter(order=instance).delete()
+        # Удаляем заказ
+        instance.delete()
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def finish_order(self, request, pk=None):
