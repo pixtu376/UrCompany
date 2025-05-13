@@ -9,6 +9,27 @@ import '../Styles/header.css'
 function Header() {
 	const { user, logout } = useAuth()
 
+	const getCalculatorLink = () => {
+		if (!user) return '/calculator'
+		if (user.is_staff) return '/admin-tariffs'
+		if (user.is_worker) return '/worker'
+		return '/calculator'
+	}
+
+	const getCalculatorText = () => {
+		if (!user) return 'Калькулятор'
+		if (user.is_worker) return 'Инструменты'
+		return 'Калькулятор'
+	}
+
+	const getDashboardLink = () => {
+		if (!user) return '/login'
+		if (user.is_staff) return '/admin-tariffs'
+		// Исправлено: для работника личный кабинет ведет на /dashboard
+		if (user.is_worker) return '/dashboard'
+		return '/dashboard'
+	}
+
 	return (
 		<div className='header'>
 			<div className='logo'>
@@ -17,7 +38,7 @@ function Header() {
 			</div>
 			<div className='buttons'>
 				<button>
-					<Link to='/calculator'>Калькулятор</Link>
+					<Link to={getCalculatorLink()}>{getCalculatorText()}</Link>
 				</button>
 				<button>
 					<Link to='/legal-clients'>Для юр. лиц</Link>
@@ -28,7 +49,7 @@ function Header() {
 			</div>
 			<div className='user-actions'>
 				<button className={`User ${user ? 'User-authenticated' : ''}`}>
-					<Link to={user ? (user.is_staff ? '/admin-tariffs' : '/dashboard') : '/login'}>
+					<Link to={getDashboardLink()}>
 						<img className='Userlogo' src={userIcon} alt=''></img>
 						<p>{user && user.email ? user.email.split('@')[0] : 'Личный кабинет'}</p>
 					</Link>

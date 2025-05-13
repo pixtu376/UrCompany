@@ -146,21 +146,23 @@ const Dashboard = () => {
 			<div className='account-container'>
 				<aside className='account-sidebar'>
 					<nav>
-						<ul>
-							<li
-								className={activeTab === 'Мои данные' ? 'active' : ''}
-								onClick={() => handleTabClick('Мои данные')}
-								style={{ cursor: 'pointer' }}
-							>
-								Мои данные
-							</li>
-							<li
-								className={activeTab === 'Настройки' ? 'active' : ''}
-								onClick={() => handleTabClick('Настройки')}
-								style={{ cursor: 'pointer' }}
-							>
-								Настройки
-							</li>
+				<ul>
+					<li
+						className={activeTab === 'Мои данные' ? 'active' : ''}
+						onClick={() => handleTabClick('Мои данные')}
+						style={{ cursor: 'pointer' }}
+					>
+						Мои данные
+					</li>
+					<li
+						className={activeTab === 'Настройки' ? 'active' : ''}
+						onClick={() => handleTabClick('Настройки')}
+						style={{ cursor: 'pointer' }}
+					>
+						Настройки
+					</li>
+					{!(user?.is_staff || user?.is_worker) && (
+						<>
 							<li
 								className={activeTab === 'Уведомления' ? 'active' : ''}
 								onClick={() => handleTabClick('Уведомления')}
@@ -186,8 +188,10 @@ const Dashboard = () => {
 							>
 								Чаты
 							</li>
-							<li className='user-name'>{user?.email || 'Пользователь'}</li>
-						</ul>
+						</>
+					)}
+					<li className='user-name'>{user?.email || 'Пользователь'}</li>
+				</ul>
 					</nav>
 				</aside>
 
