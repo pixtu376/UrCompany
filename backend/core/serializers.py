@@ -1,6 +1,21 @@
 from rest_framework import serializers
 from .models import User, Tariff, Order, Worker, Notification
 from .models import Chat, Message
+from django.contrib.auth.hashers import make_password
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, min_length=6)
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'first_name', 'last_name', 'birthDate', 'gender', 'document_type', 'document_number', 'document_issue_date', 'document_issuer', 'snils', 'address_city', 'address_street', 'address_house', 'address_building', 'address_apartment']
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
 
 class UserSerializer(serializers.ModelSerializer):
     is_worker = serializers.SerializerMethodField()

@@ -24,12 +24,12 @@ const schema = yup.object().shape({
 })
 
 function RegistrationPage() {
-	const { login } = useAuth()
+	const { login, register } = useAuth()
 	const [activeTab, setActiveTab] = useState('juridical')
 	const navigate = useNavigate()
 
 	const {
-		register,
+		register: formRegister,
 		handleSubmit,
 		formState: { errors },
 	} = useForm({
@@ -87,7 +87,7 @@ function RegistrationPage() {
 						name='email'
 						type='email'
 						placeholder='Введите email'
-						register={register}
+						register={formRegister}
 						required
 						errors={errors}
 					/>
@@ -97,7 +97,7 @@ function RegistrationPage() {
 						name='password'
 						type='password'
 						placeholder='Введите пароль'
-						register={register}
+						register={formRegister}
 						required
 						errors={errors}
 					/>
@@ -107,7 +107,7 @@ function RegistrationPage() {
 						name='confirmPassword'
 						type='password'
 						placeholder='Подтвердите пароль'
-						register={register}
+						register={formRegister}
 						required
 						errors={errors}
 					/>

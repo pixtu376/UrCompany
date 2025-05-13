@@ -19,16 +19,13 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+from .serializers import RegistrationSerializer
+
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def register_user(request):
-    from django.contrib.auth.hashers import make_password
-    serializer = UserSerializer(data=request.data)
+    serializer = RegistrationSerializer(data=request.data)
     if serializer.is_valid():
-        # Хешируем пароль перед сохранением
-        password = serializer.validated_data.get('password')
-        if password:
-            serializer.validated_data['password'] = make_password(password)
         user = serializer.save()
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
     else:
