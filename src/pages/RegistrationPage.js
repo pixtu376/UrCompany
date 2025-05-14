@@ -1,11 +1,11 @@
-// src/components/LoginPage.jsx
+// src/components/RegistrationPage.jsx
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useAuth } from '../contexts/AuthContext'
-import { TextInput } from './FormInputs'
+import { TextInput } from '../components/FormInputs'
 import '../Styles/Login.css'
 
 const schema = yup.object().shape({
@@ -17,31 +17,40 @@ const schema = yup.object().shape({
 		.string()
 		.min(6, 'Минимум 6 символов')
 		.required('Пароль обязателен'),
+	confirmPassword: yup
+		.string()
+		.oneOf([yup.ref('password'), null], 'Пароли должны совпадать')
+		.required('Подтверждение пароля обязательно'),
 })
 
-function LoginPage() {
-	const { login } = useAuth()
+function RegistrationPage() {
+	const { login, register } = useAuth()
 	const [activeTab, setActiveTab] = useState('juridical')
 	const navigate = useNavigate()
 
 	const {
-		register,
+		register: formRegister,
 		handleSubmit,
 		formState: { errors },
 	} = useForm({
 		resolver: yupResolver(schema),
 	})
 
-	const onSubmit = data => {
-		console.log({ ...data, userType: activeTab })
-		login({ ...data, userType: activeTab })
-		// navigate('/dashboard') убираем, навигация происходит в AuthContext после успешного логина
+	const onSubmit = async data => {
+		try {
+			console.log({ ...data, userType: activeTab })
+			await register({ ...data, userType: activeTab })
+			await login({ email: data.email, password: data.password })
+			navigate('/dashboard')
+		} catch (error) {
+			console.error('Registration failed:', error)
+		}
 	}
 
 	return (
 		<div className='login-page'>
 			<div className='login-container'>
-				<h1>Личный кабинет</h1>
+				<h1>Регистрация</h1>
 
 				<div className='auth-options'>
 					<div className='auth-buttons'>
@@ -52,7 +61,7 @@ function LoginPage() {
 							}`}
 							onClick={() => setActiveTab('physical')}
 						>
-							Войти как физ. лицо
+							Зарегистрироваться как физ. лицо
 						</button>
 						<button
 							type='button'
@@ -61,11 +70,11 @@ function LoginPage() {
 							}`}
 							onClick={() => setActiveTab('juridical')}
 						>
-							Войти как юр. лицо
+							Зарегистрироваться как юр. лицо
 						</button>
 					</div>
-					<Link to='/registration' className='register-link'>
-						Зарегистрироваться
+					<Link to='/login' className='register-link'>
+						Войти
 					</Link>
 				</div>
 
@@ -77,7 +86,7 @@ function LoginPage() {
 						name='email'
 						type='email'
 						placeholder='Введите email'
-						register={register}
+						register={formRegister}
 						required
 						errors={errors}
 					/>
@@ -87,22 +96,28 @@ function LoginPage() {
 						name='password'
 						type='password'
 						placeholder='Введите пароль'
-						register={register}
+						register={formRegister}
+						required
+						errors={errors}
+					/>
+
+					<TextInput
+						label='Подтверждение пароля'
+						name='confirmPassword'
+						type='password'
+						placeholder='Подтвердите пароль'
+						register={formRegister}
 						required
 						errors={errors}
 					/>
 
 					<button type='submit' className='login-button'>
-						Войти
+						Зарегистрироваться
 					</button>
 				</form>
-
-				<Link to='/forgot-password' className='forgot-password'>
-					Забыли пароль?
-				</Link>
 			</div>
 		</div>
 	)
 }
 
-export default LoginPage
+export default RegistrationPage

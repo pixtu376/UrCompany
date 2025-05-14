@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { RadioGroup, TextInput } from './FormInputs'
+import { RadioGroup, TextInput } from '../components/FormInputs'
 import '../Styles/Kalkulate.css'
 
 function Calculator() {
